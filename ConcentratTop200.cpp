@@ -1,4 +1,4 @@
-#if 1
+#if 0
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -6,7 +6,6 @@
 using namespace std;
 
 // 1 两数之和
-/*
 vector<int> TwoSum(const vector<int>& nums, int target) {
 	if (nums.empty()) {
 		return {};
@@ -45,29 +44,8 @@ int main() {
 	cout << res[0] << " " << res[1] << endl;
 	return 0;
 }
-*/
 
 // 2 两数相加
 
 // 3 无重复字符的最长子串
-int getLenOfStr(const string& str) {
-	if (str.empty()) {
-		return 0;
-	}
-
-
-}
-
-#include <map>
-
-int main() {
-	string s = "asdf";
-	for (int i = 0; i < s.length(); i++) {
-	    for (int j = i; j < s.length(); j++) {
-			cout << s.substr(i, j - i + 1) << endl;
-		}
-	}
-
-	return 0;
-}
 #endif

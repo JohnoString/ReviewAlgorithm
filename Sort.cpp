@@ -1,4 +1,4 @@
-#if 0
+#if 1
 #include <iostream>
 #include <stack>
 #include <vector>
@@ -10,8 +10,8 @@ int getPartSortIndex(vector<int>& nums, int low, int high) {
     int tmp = nums[low]; // TODO：随机取值
     int i = low;
     int j = high;
-    
-    while (i <j) {
+    /*
+    while (i < j) {
         while (i < j && nums[j] >= tmp) {
             j--;
         }
@@ -26,6 +26,31 @@ int getPartSortIndex(vector<int>& nums, int low, int high) {
     }
 
     nums[i] = tmp;
+    */
+
+    while (i <= j) { // 不加=死循环 如:[3, 2, 1, 4, 5]
+        while (i <= j && nums[j] /*>=*/ > tmp) { // 加=死循环 如:[1, 1, 1, 1, 1]
+            j--; 
+        }
+
+        while (i <= j && nums[i] /*<=*/ < tmp) {
+            i++;
+        }
+
+        if (i <= j) {
+            int tmp1 = nums[i];
+            nums[i] = nums[j];
+            nums[j] = tmp1;
+
+            i++;
+            j--;
+        }
+    }
+    /*
+    if (nums[i] < tmp) {
+        return i + 1;
+    }
+    */
 
     return i;
 }
@@ -129,10 +154,10 @@ void mergeSort(vector<int>& nums) {
 
 int main()
 {
-    vector<int> nums = { 2, -1, 4, 55, 0, 67, -23, 5, 9 };
+    vector<int> nums = { 3, 2, 1, 4, 5};
 
-    //quickSortNotR(nums, 0, nums.size() - 1);
-    mergeSort(nums);
+    quickSortNotR(nums, 0, nums.size() - 1);
+    //mergeSort(nums);
 
     for (auto item : nums) {
         cout << item << " ";
