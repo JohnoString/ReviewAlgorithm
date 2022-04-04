@@ -207,104 +207,240 @@ int minSubArrayLen(vector<int> nums, int target) {
 */
 
 // 注意:传参数会超时 这种最好写成成员变量的想形式
-bool check() {
-	for (auto item : eleNums) {
-		if (curNums[item.first] < item.second) {
+/*
+*/
+class SolutionMinWindow {
+public:
+	string minWindow(string s, string t) {
+		int sLen = s.size();
+		int tLen = t.size();
+
+		if (s.empty() || t.empty() || sLen < tLen) {
+			return "";
+		}
+
+		for (int i = 0; i < tLen; ++i) {
+			eleNums[t[i]]++;
+		}
+
+		/* right需要从-1开始
+		* int left = 0, right = 0;
+		int minLen = INT_MAX;
+		int l = -1;
+
+		while (right < sLen) {
+			if (eleNums.find(s[right]) != eleNums.end()) {
+				curNums[s[right]]++;
+			}
+
+			while (check(eleNums, curNums) && left <= right) {
+				minLen = min(minLen, right - left + 1);
+				l = left;
+				if (eleNums.find(s[left]) != eleNums.end()) {
+					curNums[s[left]]--;
+				}
+
+				left++;
+			}
+
+			right++; // 注意right++要放最后面, minLen = min(minLen, right - left + 1);这种写法会有影响
+		}
+		*/
+
+		/* 报超时！用例差一个
+		* int left = 0, right = -1;
+		int minLen = INT_MAX;
+		int l = -1;
+
+		while (right < sLen) {
+			if (eleNums.find(s[++right]) != eleNums.end()) {
+				curNums[s[right]]++;
+			}
+
+			while (check(eleNums, curNums) && left <= right) {
+				minLen = min(minLen, right - left + 1);
+				if (minLen == right - left + 1) {
+					l = left;
+				}
+
+				if (eleNums.find(s[left]) != eleNums.end()) {
+					curNums[s[left]]--;
+				}
+
+				left++;
+			}
+		}
+		*/
+
+		int left = 0, right = -1;
+		int minLen = INT_MAX;
+		int l = -1;
+
+		while (right < sLen) {
+			if (eleNums.find(s[++right]) != eleNums.end()) {
+				curNums[s[right]]++;
+			}
+
+			while (check() && left <= right) {
+				minLen = min(minLen, right - left + 1);
+				if (minLen == right - left + 1) {
+					l = left; // 需要更新才保存left
+				}
+
+				if (eleNums.find(s[left]) != eleNums.end()) {
+					curNums[s[left]]--;
+				}
+
+				left++;
+			}
+		}
+
+		return l == -1 ? "" : s.substr(l, minLen);
+	}
+
+private:
+	unordered_map<char, int> eleNums, curNums;
+	bool check() {
+		for (auto item : eleNums) {
+			if (curNums[item.first] < item.second) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+};
+
+class SolutionFindAnagrams {
+public:
+	/*自己实现版本:问题很大
+	* 	vector<int> findAnagrams(string s, string p) {
+		vector<int> res;
+		int sLen = s.size();
+		int pLen = p.size();
+
+		if (s.empty() || p.empty() || pLen > sLen) {
+			return res;
+		}
+
+		for (auto item : p) {
+			m_ori[item]++;
+		}
+
+		int left = 0, right = 0;
+		
+		while (right < sLen) {
+			if (m_ori.find(s[right]) != m_ori.end()) {
+				m_cur[s[right]]++;
+			}
+			else {
+				left = right + 1;
+				right = left;
+			}
+
+			if (check() && left <= right) {
+				res.emplace_back(left);
+				m_cur[s[left]]--;
+
+				if (m_ori.find(s[left]) != m_ori.end()) {
+					left++;
+				}
+			}
+
+			right++;
+		}
+
+		return res;
+	}
+	*/
+
+	/*
+	* private:
+	* 	bool check() {
+		for (auto item : m_ori) {
+			if (m_cur[item.first] < item.second) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+	private:
+	unordered_map<char, int> m_ori, m_cur;
+	*/
+
+	vector<int> findAnagrams(string s, string p) {
+		vector<int> res;
+		int sLen = s.size();
+		int pLen = p.size();
+
+		if (s.empty() || p.empty() || pLen > sLen) {
+			return res;
+		}
+
+		vector<int> pNum(26);
+		vector<int> sNum(26);
+
+		// index从0开始的特殊处理
+		for (int i = 0; i < pLen; ++i) {
+			pNum[p[i] - 'a']++;
+			sNum[s[i] - 'a']++;
+		}
+
+		if (pNum == sNum) {
+			res.emplace_back(0);
+		}
+
+		// index从1开始往后推移
+		for (int i = 0; i < sLen - pLen; ++i) {
+			sNum[s[i] - 'a']--;
+			sNum[s[i + pLen] - 'a']++;
+
+			if (pNum == sNum) {
+				res.emplace_back(i + 1);
+			}
+		}
+
+		return res;
+	}
+};
+
+class SolutionCheckInclusion {
+public:
+	bool checkInclusion(string s1, string s2) {
+		int len1 = s1.size();
+		int len2 = s2.size();
+
+		if (len2 < len1) {
 			return false;
 		}
-	}
 
-	return true;
-}
+		vector<int> pNum(26);
+		vector<int> sNum(26);
 
-unordered_map<char, int> eleNums, curNums;
-
-string minWindow(string s, string t) {
-	int sLen = s.size();
-	int tLen = t.size();
-
-	if (s.empty() || t.empty() || sLen < tLen) {
-		return "";
-	}
-
-	for (int i = 0; i < tLen; ++i) {
-		eleNums[t[i]]++;
-	}
-
-	/* right需要从-1开始
-	* int left = 0, right = 0;
-	int minLen = INT_MAX;
-	int l = -1;
-
-	while (right < sLen) {
-		if (eleNums.find(s[right]) != eleNums.end()) {
-			curNums[s[right]]++;
+		// index从0开始的特殊处理
+		for (int i = 0; i < len1; ++i) {
+			pNum[s1[i] - 'a']++;
+			sNum[s2[i] - 'a']++;
 		}
-		
-		while (check(eleNums, curNums) && left <= right) {
-			minLen = min(minLen, right - left + 1);
-			l = left;
-			if (eleNums.find(s[left]) != eleNums.end()) {
-				curNums[s[left]]--;
+
+		if (pNum == sNum) {
+			return true;
+		}
+
+		// index从1开始往后推移
+		for (int i = 0; i < len2 - len1; ++i) {
+			sNum[s2[i] - 'a']--;
+			sNum[s2[i + len1] - 'a']++;
+
+			if (pNum == sNum) {
+				return true;
 			}
-
-			left++;
 		}
 
-		right++; // 注意right++要放最后面, minLen = min(minLen, right - left + 1);这种写法会有影响
+		return false;
 	}
-	*/
-
-	/* 报超时！用例差一个
-	* int left = 0, right = -1;
-	int minLen = INT_MAX;
-	int l = -1;
-
-	while (right < sLen) {
-		if (eleNums.find(s[++right]) != eleNums.end()) {
-			curNums[s[right]]++;
-		}
-
-		while (check(eleNums, curNums) && left <= right) {
-			minLen = min(minLen, right - left + 1);
-			if (minLen == right - left + 1) {
-				l = left;
-			}
-			
-			if (eleNums.find(s[left]) != eleNums.end()) {
-				curNums[s[left]]--;
-			}
-
-			left++;
-		}
-	}
-	*/
-	
-	int left = 0, right = -1;
-	int minLen = INT_MAX;
-	int l = -1;
-
-	while (right < sLen) {
-		if (eleNums.find(s[++right]) != eleNums.end()) {
-			curNums[s[right]]++;
-		}
-
-		while (check() && left <= right) {
-			minLen = min(minLen, right - left + 1);
-			if (minLen == right - left + 1) {
-				l = left;
-			}
-
-			if (eleNums.find(s[left]) != eleNums.end()) {
-				curNums[s[left]]--;
-			}
-
-			left++;
-		}
-	}
-
-	return l == -1 ? "" : s.substr(l, minLen);
-}
+};
 
 int main() {
 	// lc 424
@@ -322,13 +458,21 @@ int main() {
 	//vector<int> nums = { 1, 2, 3, 4, 5 };
 	//cout << minSubArrayLen(nums, 11) << endl;
 
-	// lc 76
-	// cout << minWindow("ab", "a");
+	// lc 76 只有目标子串的长度不定的时候才需要双hash作为比对
+	// SolutionMinWindow s;
+	// cout << s.SolutionminWindow("ab", "a");
 
 	// lc 438
-
+	// SolutionFindAnagrams s;
+	// vector<int> pos = s.findAnagrams("cbaebabacd", "abc");
+	// for (auto item : pos) {
+	// 	cout << item << " ";
+	// }
+	// cout << endl;
 
 	// lc 567
+	// SolutionCheckInclusion s;
+	// cout << s.checkInclusion("ab", "eidbaooo") << endl;
 	return 0;
 }
 
