@@ -116,6 +116,94 @@ int longestOnes(vector<int> nums, int k) {
 	return right - left;
 }
 
+int equalSubString(string s, string t, int cost) {
+	if (s.empty() || t.empty()) {
+		return 0;
+	}
+
+	int n = s.size();
+	vector<int> diff(n, 0);
+	for (int i = 0; i < n; ++i) {
+		diff[i] = abs(s[i] - t[i]);
+	}
+
+	int left = 0, right = 0;
+	int sum = 0;
+	int maxLen = 0;
+
+	while (right < n) {
+		sum += diff[right];
+		if (sum > cost) {
+			sum -= diff[left];
+			left++;
+		}
+
+		maxLen = max(maxLen, right - left + 1);
+		cout << "maxLen:" << maxLen << endl;
+		right++;
+	}
+
+	return maxLen;
+}
+
+int minSubArrayLen(vector<int> nums, int target) {
+	if (nums.empty() || target <= 0) {
+		return 0;
+	}
+
+	int n = nums.size();
+	int left = 0, right = 0;
+	int sum = 0;
+	int minLen = INT_MAX;
+
+	while (right < n) {
+		sum += nums[right];
+
+		while (sum >= target) { // 注意:此处不能用if了, 逻辑进来很多次
+			if (sum == target) {
+				minLen = min(right - left + 1, minLen);
+			}
+
+			sum -= nums[left];
+			left++;
+		}
+
+		right++;
+	}
+
+	return minLen;
+}
+
+string minWindow(string s, string t) {
+	int sLen = s.size();
+	int tLen = t.size();
+
+	if (s.empty() || t.empty() || sLen < tLen) {
+		return "";
+	}
+
+	unordered_map<int, int> eleNums;
+	for (int i = 0; i < tLen; ++i) {
+		eleNums[t[i] - 'A']++;
+	}
+
+	int left = 0, right = 0;
+	int minLen = 0;
+
+	while (right < sLen) {
+		if (eleNums.find(s[right] - 'A') != eleNums.end() && eleNums[s[right]] > 0) {
+			eleNums[s[right]]--;
+			right++;
+		}
+		else {
+			minLen = min(minLen, right - left + 1);
+			left++;
+		}
+	}
+
+	return s.substr(left, minLen);
+}
+
 int main() {
 	// lc 424
 	// cout << characterReplacement("ABMCDBASDFDSGSD", 2) << endl;
@@ -125,10 +213,16 @@ int main() {
 	// cout << longestOnes(nums, 2) << endl;
 
 	// lc 1208
+	// cout << equalSubString("abcd", "asdf", 3) << endl;
 
 	// lc 1993
 	// lc 209
+	//vector<int> nums = { 2, 3, 1, 2, 4, 3 };
+	//cout << minSubArrayLen(nums, 7) << endl;
+
 	// lc 76
+	cout << minWindow("ADOBECODEBANC", "ABC");
+
 	// lc 438
 	// lc 567
 	return 0;
