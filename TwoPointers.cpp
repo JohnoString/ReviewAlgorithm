@@ -442,6 +442,31 @@ public:
 	}
 };
 
+#include <queue>
+class SolutionMaxSlidingWindow {
+public:
+	vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+		int n = nums.size();
+
+		priority_queue<pair<int, int>> q;
+		for (int i = 0; i < n; ++i) {
+			q.emplace(nums[i], i);
+		}
+
+		vector<int> ans = { q.top().first };
+		for (int i = k; i < n; ++i) {
+			q.emplace(nums[i], i);
+			while (q.top().second <= i - k) {
+				q.pop();
+			}
+
+			ans.emplace_back(q.top().first);
+		}
+
+		return ans;
+ 	}
+};
+
 int main() {
 	// lc 424
 	// cout << characterReplacement("ABMCDBASDFDSGSD", 2) << endl;
@@ -473,6 +498,29 @@ int main() {
 	// lc 567
 	// SolutionCheckInclusion s;
 	// cout << s.checkInclusion("ab", "eidbaooo") << endl;
+
+	// lc 632
+
+	// lc 727
+
+	// lc 159
+
+	// lc 239 O(n*k)需要优化
+	// 思路1：维护一个大根堆, 窗口移动的时候
+	// 思路2：单调队列
+	// 思路3: 分块+预处理
+	SolutionMaxSlidingWindow s;
+	vector<int> res;
+	vector<int> nums = { 1, 2, -2, 4, -2, 8, 9 };
+	res = s.maxSlidingWindow(nums, 3);
+	for (auto it : res) {
+		cout << it << " ";
+	}
+
+	cout << endl;
+
+
+	// TODO: 总结归类
 	return 0;
 }
 
