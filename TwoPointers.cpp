@@ -160,9 +160,9 @@ int minSubArrayLen(vector<int> nums, int target) {
 		sum += nums[right];
 
 		while (sum >= target) { // 注意:此处不能用if了, 逻辑进来很多次
-			if (sum == target) {
+			//if (sum == target) { // 题意是大于
 				minLen = min(right - left + 1, minLen);
-			}
+			//}
 
 			sum -= nums[left];
 			left++;
@@ -174,7 +174,8 @@ int minSubArrayLen(vector<int> nums, int target) {
 	return minLen;
 }
 
-string minWindow(string s, string t) {
+/* 自己实现考虑不周的地方
+* string minWindow(string s, string t) {
 	int sLen = s.size();
 	int tLen = t.size();
 
@@ -188,7 +189,7 @@ string minWindow(string s, string t) {
 	}
 
 	int left = 0, right = 0;
-	int minLen = 0;
+	int minLen = INT_MAX;
 
 	while (right < sLen) {
 		if (eleNums.find(s[right] - 'A') != eleNums.end() && eleNums[s[right]] > 0) {
@@ -202,6 +203,107 @@ string minWindow(string s, string t) {
 	}
 
 	return s.substr(left, minLen);
+}
+*/
+
+// 注意:传参数会超时 这种最好写成成员变量的想形式
+bool check() {
+	for (auto item : eleNums) {
+		if (curNums[item.first] < item.second) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+unordered_map<char, int> eleNums, curNums;
+
+string minWindow(string s, string t) {
+	int sLen = s.size();
+	int tLen = t.size();
+
+	if (s.empty() || t.empty() || sLen < tLen) {
+		return "";
+	}
+
+	for (int i = 0; i < tLen; ++i) {
+		eleNums[t[i]]++;
+	}
+
+	/* right需要从-1开始
+	* int left = 0, right = 0;
+	int minLen = INT_MAX;
+	int l = -1;
+
+	while (right < sLen) {
+		if (eleNums.find(s[right]) != eleNums.end()) {
+			curNums[s[right]]++;
+		}
+		
+		while (check(eleNums, curNums) && left <= right) {
+			minLen = min(minLen, right - left + 1);
+			l = left;
+			if (eleNums.find(s[left]) != eleNums.end()) {
+				curNums[s[left]]--;
+			}
+
+			left++;
+		}
+
+		right++; // 注意right++要放最后面, minLen = min(minLen, right - left + 1);这种写法会有影响
+	}
+	*/
+
+	/* 报超时！用例差一个
+	* int left = 0, right = -1;
+	int minLen = INT_MAX;
+	int l = -1;
+
+	while (right < sLen) {
+		if (eleNums.find(s[++right]) != eleNums.end()) {
+			curNums[s[right]]++;
+		}
+
+		while (check(eleNums, curNums) && left <= right) {
+			minLen = min(minLen, right - left + 1);
+			if (minLen == right - left + 1) {
+				l = left;
+			}
+			
+			if (eleNums.find(s[left]) != eleNums.end()) {
+				curNums[s[left]]--;
+			}
+
+			left++;
+		}
+	}
+	*/
+	
+	int left = 0, right = -1;
+	int minLen = INT_MAX;
+	int l = -1;
+
+	while (right < sLen) {
+		if (eleNums.find(s[++right]) != eleNums.end()) {
+			curNums[s[right]]++;
+		}
+
+		while (check() && left <= right) {
+			minLen = min(minLen, right - left + 1);
+			if (minLen == right - left + 1) {
+				l = left;
+			}
+
+			if (eleNums.find(s[left]) != eleNums.end()) {
+				curNums[s[left]]--;
+			}
+
+			left++;
+		}
+	}
+
+	return l == -1 ? "" : s.substr(l, minLen);
 }
 
 int main() {
@@ -217,13 +319,15 @@ int main() {
 
 	// lc 1993
 	// lc 209
-	//vector<int> nums = { 2, 3, 1, 2, 4, 3 };
-	//cout << minSubArrayLen(nums, 7) << endl;
+	//vector<int> nums = { 1, 2, 3, 4, 5 };
+	//cout << minSubArrayLen(nums, 11) << endl;
 
 	// lc 76
-	cout << minWindow("ADOBECODEBANC", "ABC");
+	// cout << minWindow("ab", "a");
 
 	// lc 438
+
+
 	// lc 567
 	return 0;
 }
