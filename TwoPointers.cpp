@@ -445,17 +445,23 @@ public:
 #include <queue>
 class SolutionMaxSlidingWindow {
 public:
+	// 优先级队列
 	vector<int> maxSlidingWindow(vector<int>& nums, int k) {
 		int n = nums.size();
 
 		priority_queue<pair<int, int>> q;
-		for (int i = 0; i < n; ++i) {
+		for (int i = 0; i < k; ++i) {
 			q.emplace(nums[i], i);
 		}
 
 		vector<int> ans = { q.top().first };
 		for (int i = k; i < n; ++i) {
 			q.emplace(nums[i], i);
+			/*
+				当这个最大值不在滑动窗口中时, 将其弹出队列。 如：2, 1, -2, 1
+				当前堆顶元素的下标是0, 说明当前入堆的元素不是最大的. 此时需要
+				将堆顶元素弹出堆. 剩下的元素中最大的就是当前窗口中最大元素.
+			*/
 			while (q.top().second <= i - k) {
 				q.pop();
 			}
@@ -465,6 +471,40 @@ public:
 
 		return ans;
  	}
+
+	// 单调队列
+	vector<int> maxSlidingWindow1(vector<int>& nums, int k) {
+		int n = nums.size();
+		deque<int> q;
+		for (int i = 0; i < k; ++i) {
+			while (!q.empty() && nums[i] >= nums[q.back()]) {
+				q.pop_back();
+			}
+
+			q.emplace_back(i);
+		}
+
+		vector<int> ans = { nums[q.front()] };
+		for (int i = k; i < n; ++i) {
+			while (!q.empty() && nums[i] >= nums[q.back()]) {
+				q.pop_back();
+			}
+
+			q.emplace_back(i);
+			while (q.front() <= i - k) {
+				q.pop_front();
+			}
+
+			ans.emplace_back(nums[q.front()]);
+		}
+
+		return ans;
+	}
+
+	// 分块预处理_稀疏表
+	vector<int> maxSlidingWindow2(vector<int>& nums, int k) {
+		int n = nums.size();
+	}
 };
 
 int main() {
@@ -509,17 +549,17 @@ int main() {
 	// 思路1：维护一个大根堆, 窗口移动的时候
 	// 思路2：单调队列
 	// 思路3: 分块+预处理
-	SolutionMaxSlidingWindow s;
-	vector<int> res;
-	vector<int> nums = { 1, 2, -2, 4, -2, 8, 9 };
-	res = s.maxSlidingWindow(nums, 3);
-	for (auto it : res) {
-		cout << it << " ";
-	}
-
-	cout << endl;
-
-
+	/*
+	* SolutionMaxSlidingWindow s;
+	  vector<int> res;
+	  vector<int> nums = { 1, 2, -2, 4, -2, 8, 9 };
+	  res = s.maxSlidingWindow1(nums, 3);
+	  for (auto it : res) {
+	  	cout << it << " ";
+	  }
+	  cout << endl;
+	*/
+	
 	// TODO: 总结归类
 	return 0;
 }
