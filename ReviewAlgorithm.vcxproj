@@ -144,6 +144,7 @@
     <ClCompile Include="BinaryTree.cpp" />
     <ClCompile Include="ConcentratTop200.cpp" />
     <ClCompile Include="List.cpp" />
+    <ClCompile Include="MeetOfMS.cpp" />
     <ClCompile Include="ReviewAlgorithm.cpp" />
     <ClCompile Include="SharedPtr.cpp" />
     <ClCompile Include="Sort.cpp" />
