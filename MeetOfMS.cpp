@@ -1,4 +1,4 @@
-#if 1
+#if 0
 #include <iostream>
 #include <algorithm>
 #include <list>
@@ -104,17 +104,11 @@ public:
 
             cout << endl;
         }
-        
-        // 循环打印到控制台，
-        for (auto item : newPokers2) {
-            cout << item << " ";
-        }
-
-        cout << endl;
     }
 
-    /**
-     * 这里的操作是从桌子把牌拿回到手上
+    /**+`       ``
+     * 这里的操作是+
+     从桌子把牌拿回到手上
      * 从桌子 到 手上 int[] t = {13,12,11,10,9,8,7,6,5,4,3,2,1};
      * 返回 {1,12,2,8,3,11,4,9,5,13,6,10,7}
      *
@@ -149,13 +143,30 @@ public:
 
             cout << endl;
         }
+    }
 
-        // 循环打印到控制台
-        for (auto item : newPokers2) {
-            cout << item << " "; 
+    void mySort(vector<int> pokers) {
+        list<int> pokerList;
+        for (auto item : pokers) {
+            pokerList.emplace_back(item);
         }
 
-        cout << endl;
+        list<int> newPokers2;
+        for (auto item : pokerList) {
+            if (newPokers2.size() > 1) {
+                newPokers2.emplace_front(newPokers2.back());
+                newPokers2.pop_back();
+            }
+
+            newPokers2.emplace_front(item);
+
+            // 打印每次的所有数据看下规律
+            for (auto item : newPokers2) {
+                cout << item << " ";
+            }
+
+            cout << endl;
+        }
     }
 };
 
@@ -166,10 +177,12 @@ int main() {
 	// cout << s.minJumps(nums);
 
     // pokers
-    vector<int> nums = /*{ 1, 12, 2, 8, 3, 11, 4, 9, 5, 13, 6, 10, 7 };*/{ 13,12,11,10,9,8,7,6,5,4,3,2,1 };
-    SolutionPokers ps;
-    ps.sort(nums); // 将牌从桌子上还原到手上. 核心逻辑:
+    // vector<int> nums = /*{ 1, 12, 2, 8, 3, 11, 4, 9, 5, 13, 6, 10, 7 };*/{ 13,12,11,10,9,8,7,6,5,4,3,2,1 };
+    // SolutionPokers ps;
+    // ps.mySort(nums); // 将牌从桌子上还原到手上. 核心逻辑:
     // ps.sort2(nums); // 将牌从手上放到桌子上. 原始逻辑
-	return 0;
+	
+    
+    return 0;
 }
 #endif
