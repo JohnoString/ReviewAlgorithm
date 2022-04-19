@@ -365,6 +365,238 @@ public:
 	}
 };
 
+class Solution17 {
+public:
+	// DFS 对照画图可以清晰地理解其递归+循环过程
+	void backtrack(vector<string>& combinations, const unordered_map<char, string>& phoneMap,
+					const string &digits, int index, string& combination) {
+		
+		if (index == digits.size()) {
+			combinations.emplace_back(combination);
+		}
+		else {
+			char digit = digits[index];
+			const string& letters = phoneMap.at(digit);
+			for (const char& letter : letters) {
+				combination.push_back(letter);
+				backtrack(combinations, phoneMap, digits, index + 1, combination);
+				combination.pop_back();
+			}
+		}
+	}
+
+	vector<string> letterCombinations(string digits) {
+		if (digits.empty()) {
+			return {};
+		}
+
+		vector<string> combitions; 
+		unordered_map<char, string> phoneMap = 
+		{{'2', "abc"}, {'3', "def"},
+		{'4', "ghi"}, {'5', "jkl"},
+		{'6', "mno"}, {'7', "pqrs"},
+		{'8', "tuv"}, {'9', "wxyz"}};
+
+		string combition;
+		backtrack(combitions, phoneMap, digits, 0, combition);
+		return combitions;
+	}
+
+	// BFS 时间复杂度跟DFS一样
+	vector<string> letterCombinationsBfs(string digits) {
+	}
+};
+
+class ListNode {
+public:
+	ListNode(int val) {
+		this->val = val;
+		this->next = nullptr;
+	}
+
+	int val;
+	ListNode* next;
+};
+
+class Solution19 {
+public:
+	ListNode* removeNthNodeFromEnd(ListNode* node, int n) {
+		/* self 实现
+		if (node == nullptr || n <= 0) {
+			return nullptr;
+		}
+
+		if (node->next == nullptr && n == 1) {
+			return node;
+		}
+
+		ListNode* head = node;
+		ListNode* first = node;
+		ListNode* second = node;
+
+		while (second->next != nullptr) {
+			second = second->next;
+			n--;
+		}
+
+		// n大于节点个数
+		if (second == nullptr && n > 0) {
+			return nullptr;
+		}
+
+		// 找到first删除
+		while (second->next != nullptr) {
+			first = first->next;
+			second = second->next;
+		}
+
+		return head;
+		*/
+		
+		// 总结: dummy节点用法, 解决第一个节点被删除需要特殊处理的情况
+		// 先画图 加深记忆
+		ListNode dummy(ListNode(-1));
+		dummy.next = node;
+
+		ListNode* first = node; 
+		ListNode* second = &dummy; // 节点index计算从1开始, second从哑节点开始
+
+		for (int i = 0; i < n; ++i) {
+			first = first->next;
+		}
+
+		while (first) {
+			first = first->next;
+			second = second->next;
+		}
+
+		delete second->next;
+		second->next = second->next->next;
+
+		return &dummy;
+	}
+};
+
+class Solution22 {
+public:
+	// DFS 时间O(2^2n) 空间O(n)
+	bool isVaild(string str) {
+		int balance = 0;
+		for (auto item : str) {
+			if (item == '(') {
+				balance++;
+			}
+			else {
+				balance--;
+			}
+
+			// 处理类似 "))(("情况
+			if (balance < 0) {
+				return false;
+			}
+		}
+
+		return balance == 0;
+	}
+
+	void backTrack(int n, string& res, vector<string>& results) {
+		if (2 * n == res.size()) {
+			if (isVaild(res)) {
+				results.emplace_back(res);
+			}
+			
+			return;
+		}
+
+		res += "(";
+		backTrack(n, res, results);
+		res.pop_back();
+		res += ")";
+		backTrack(n, res, results);
+		res.pop_back();
+	}
+
+	vector<string> generateParenthesis(int n) {
+		if (n == 0) {
+			return { "" };
+		}
+
+		if (n == 1) {
+			return { "()" };
+		}
+
+		vector<string> results;
+		string res;
+		backTrack(n, res, results);
+		return results;
+	}
+
+	void backTrackHS(int n, string& res, vector<string>& results, int openNum, int closeNum) {
+		if (2 * n == res.size()) {
+			if (isVaild(res)) {
+				results.emplace_back(res);
+			}
+
+			return;
+		}
+
+		// 统计左右括号数量剪枝
+		if (openNum < n) {
+			res += "(";
+			backTrack(n, res, results);
+			res.pop_back();
+		}
+		
+		if (closeNum < n) {
+			res += ")";
+			backTrack(n, res, results);
+			res.pop_back();
+		}
+	}
+
+	// 回溯(递归+剪枝)
+	vector<string> generateParenthesisHS(int n) {
+		vector<string> results;
+		string res;
+		backTrackHS(n, res, results, 0, 0);
+		return results;
+	}
+
+	// DP 时间O(n4)
+	// dp[i] 表示前i组括号的所有有效组合
+	// dp[i] = "(dp[p]的所有有效组合) + 【dp[q]的组合】", 其中 1 + p + q = i, 
+	// p从0遍历到i - 1, q则相应从i - 1到0
+	// 最后一步: (a)b
+	vector<string> generateParenthesisDP(int n) {
+		if (n == 0) return { "" };
+		if (n == 1) return { "()" };
+
+		vector<vector<string>> dp(n + 1);
+		dp[0] = { "" };
+		dp[1] = { "()" };
+
+		for (int i = 0; i <= n; ++i) {
+			for (int j = 0; j < i; ++j) {
+				for (string p : dp[j]) {
+					for (string q : dp[i - j - 1]) {
+						string str = "(" + p + ")" + q;
+						dp[i].emplace_back(str);
+					}
+				}
+			}
+		}
+
+		return dp[n];
+	}
+};
+
+class Solution29 {
+public:
+	int divide(int dividend, int divisor) {
+
+	}
+};
+
 int main() {
 	// 1. 两数之和
 	// vector<int> nums = { 2, 8, 0, 7, 13 };
@@ -402,12 +634,36 @@ int main() {
 	// cout << s.maxArea(heights) << endl;
 
 	// 15. 三数之和 为0的所有三元组. 注意:同一个元素不能使用多次
-	Solution15 s;
-	vector<int> nums = { -1, 0, 1, 2, -1, -4 };
-	vector<vector<int>> res = s.threeSums(nums);
-	for (auto item : res) {
-		cout << item[0] << " " << item[1] << " " << item[2] << endl;
-	}
+	// Solution15 s;
+	// vector<int> nums = { -1, 0, 1, 2, -1, -4 };
+	// vector<vector<int>> res = s.threeSums(nums);
+	// for (auto item : res) {
+	// 	cout << item[0] << " " << item[1] << " " << item[2] << endl;
+	// }
+
+	// 17. 电话号码的字母组合
+	// Solution17 s;
+	// vector<string> res = s.letterCombinations("234");
+	// for (auto item : res) {
+	// 	cout << item << " ";
+	// }
+	// cout << endl;
+	
+	// 19. 删除链表的倒数第N个节点
+	// 22. 括号生成
+	// Solution22 s;
+	// vector<string> res = s.generateParenthesisHS(3);
+	// for (auto item : res) {
+	// 	cout << item << " ";
+	// }
+	// cout << endl;
+
+	// 23. 合并k个有序链表
+	// 思路: ①堆
+	//		 ②自下而上两两合并
+	//       ③归并排序思想
+	
+	// 29. 两数相除
 
 	return 0;
 }
