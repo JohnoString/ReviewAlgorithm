@@ -592,7 +592,221 @@ public:
 
 class Solution29 {
 public:
-	int divide(int dividend, int divisor) {
+	// 1. 暴力 O(n)
+	// 2. 指数递增步长 O(logN)
+	int divide(int dividend, int divisor/*被除数*/) {
+		if (dividend == 0) {
+			return 0;
+		}
+
+		if (dividend == 1) {
+			return dividend;
+		}
+
+		if (dividend == -1) {
+			if (dividend > INT_MIN) return -dividend;
+			return INT_MAX;
+		}
+
+		long a = dividend;
+		long b = divisor;
+		int sign = 1;
+		if ((a > 0 && b < 0) || (a < 0 && b > 0)) {
+			sign = -1;
+		}
+
+		a = a > 0 ? a : -a;
+		b = b > 0 ? b : -b;
+
+		long res = div(a, b);
+		if (sign > 0) return res > INT_MAX ? INT_MAX : res;
+		return -res;
+	}
+
+	// 类二分
+	int div(long a, long b) {
+		if (a < b) {
+			return 0;
+		}
+
+		long count = 1;
+		long tb = b;
+		while ((tb + tb) <= a) {
+			count = count + count;
+			tb = tb + tb;
+		}
+
+		return count + div(a - tb, b);
+	}
+};
+
+class Solution34 {
+public:
+	// 二分查找特殊写法
+	int getIndex(vector<int>& nums, int target, bool isLeft) {
+		int start = 0;
+		int end = nums.size() - 1;
+
+		while (start + 1 < end) {
+			int mid = start + (end - start) / 2;
+			if (nums[mid] == target) { // 重点在==这块, end = mid表示第一个, start = mid表示最后一个.
+				if (isLeft) {
+					end = mid;
+				}
+				else {
+					start = mid;
+				}
+			}
+			else if (nums[mid] > target) {
+				end = mid;
+			}
+			else {
+				start = mid;
+			}
+		}
+
+		if (nums[start] == target) {
+			return start;
+		}
+
+		if (nums[end] == target) {
+			return end;
+		}
+
+		return -1;
+	}
+
+	vector<int> searchRanges(vector<int>& nums, int target) {
+		return { getIndex(nums, target, true), getIndex(nums, target, false) };
+	}
+};
+
+class Solution36 {
+public:
+	bool isVaildSuduku(vector<vector<string>>& board) {
+		if (board.empty() || board[0].empty()) {
+			return true;
+		}
+
+		int rows[9][9];
+		int columns[9][9];
+		int subboxes[3][3][9];
+
+		memset(rows, 0, sizeof(rows));
+		memset(columns, 0, sizeof(columns));
+		memset(subboxes, 0, sizeof(subboxes));
+
+		for (int i = 0; i < board.size(); ++i) {
+			for (int j = 0; j < board[0].size(); ++j) {
+				char c = board[i][j][0];
+				if (c != '.') {
+					int index = c - '0' - 1;
+					rows[i][index]++;
+					columns[i][index]++;
+					subboxes[i / 3][j / 3][index]++;
+					if (rows[i][index] > 1 || columns[j][index] > 1 || subboxes[i / 3][j / 3][index] > 1) {
+						return false;
+					}
+				}
+			}
+		}
+
+		return true;
+	}
+};
+
+#include <string>
+
+class Solution38 {
+public:
+	string countAndSay(int n) {
+		string prev = "1";
+		for (int i = 2; i <= n; ++i) {
+			string curr = "";
+			int start = 0;
+			int pos = 0;
+
+			while (pos < prev.size()) {
+				while (pos < prev.size() && prev[pos] == prev[start]) {
+					pos++;
+				}
+
+				curr += std::to_string(pos - start) + prev[start];
+				cout << curr << endl;
+				start = pos;
+			}
+
+			prev = curr;
+		}
+
+		return prev;
+	}
+};
+
+class Solution41 {
+public:
+	int firstMissingPosition(vector<int>& nums) {
+		// self 实现
+		// 思路: 遍历 找到大于0的最小值 找到大于0的最大值
+		/*int minV = INT_MAX;
+		int maxV = INT_MIN;
+		for (int i = 0; i < nums.size(); ++i) {
+			if (nums[i] > 0) {
+				minV = min(minV, nums[i]);
+				maxV = max(maxV, nums[i]);
+			}
+		}
+
+		if (minV == INT_MAX || maxV == INT_MIN) {
+			return -1;
+		}
+
+		return minV - 1;
+		*/
+
+		// 3 4 -1 1
+		// 1. 对小于0的元素进行n + 1赋值操作
+		int n = nums.size();
+		for (int& num : nums) {
+			if (num <= 0) {
+				num = n + 1;
+			}
+		}
+
+		// 3 4 5 1
+		// 2. 对于元素值小于len的以此元素的值为下标, 对此下标-1的元素(下标从0开始)前面加上负号
+		for (int i = 0; i < n; ++i) {
+			int num = abs(nums[i]);
+			if (num <= n) {
+				nums[num - 1] = -abs(nums[num - 1]);
+			}
+		}
+
+		// -3 4 -5 -1
+		// 3. 顺序遍历数组找到第一个大于0的元素, 返回此元素的下标值+1
+		for (int i = 0; i < n; ++i) {
+			if (nums[i] > 0) {
+				return i + 1;
+			}
+		}
+
+		// 4. 如果没有, 则返回 n + 1
+		return n + 1;
+	}
+
+	// 总结:领悟其精髓------>>>>>>>目标元素一定在0 ~ n + 1范围内
+};
+
+class Solution42 {
+public:
+	int trap(vector<int>& height) {
+
+	}
+};
+
+class Solution44 {
+public:
+	bool isMatch(string s, string p) {
 
 	}
 };
@@ -664,6 +878,42 @@ int main() {
 	//       ③归并排序思想
 	
 	// 29. 两数相除
+	// Solution29 s;
+	// cout << s.divide(33, 10) << endl;
+
+	// 33.
+	// 34. 在排序数组中查找元素的第一个和最后一个位置
+	// Solution34 s;
+	// vector<int> nums = {3, 6, 9, 9, 9, 9, 10, 23};
+	// vector<int> indexs = s.searchRanges(nums, 10);
+	// cout << indexs[0] << " " << indexs[1] << endl;
+
+	// 36. 有效的数独
+	/*
+	Solution36 s;
+	vector<vector<string>> board = { {"5","3",".",".","7",".",".",".","."}
+									,{"6",".",".","1","9","5",".",".","."}
+								    ,{".","9","8",".",".",".",".","6","."}
+									,{"8",".",".",".","6",".",".",".","3"}
+									,{"4",".",".","8",".","3",".",".","1"}
+									,{"7",".",".",".","2",".",".",".","6"}
+									,{".","6",".",".",".",".","2","8","."}
+									,{".",".",".","4","1","9",".",".","5"}
+									,{".",".",".",".","8",".",".","7","9"} };
+	cout << s.isVaildSuduku(board) << endl;
+	*/
+
+	// 38. 外观数列
+	// Solution38 s;
+	// cout << s.countAndSay(10) << endl;
+	
+	// 41. 缺失的第一个正数
+	// Solution41 s;
+	// vector<int> nums = {8, 9};
+	// cout << s.firstMissingPosition(nums) << endl;
+	
+	// 42. 接雨水
+	// 44. 通配符匹配
 
 	return 0;
 }
