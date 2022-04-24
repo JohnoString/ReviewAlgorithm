@@ -209,6 +209,8 @@ public:
 
 class Solution10 {
 public:
+	// 思路：双序列型动规
+	// 
 	bool isMatch(string s, string p) {
 		int m = s.size();
 		int n = p.size();
@@ -797,17 +799,74 @@ public:
 	// 总结:领悟其精髓------>>>>>>>目标元素一定在0 ~ n + 1范围内
 };
 
-class Solution42 {
+class Solution44 {
 public:
-	int trap(vector<int>& height) {
+	// 思路：双序列型动态规划
+	bool isMatch(string s, string p) {
+		int m = s.size();
+		int n = p.size();
 
+		int i, j;
+		vector<vector<bool>> f(m + 1, vector<bool>(n + 1));
+
+		for (i = 0; i <= m; ++i) {
+			for (j = 0; j <= n; ++j) {
+				if (i == 0 && j == 0) {
+					f[i][j] = true;
+					continue;
+				}
+
+				if (j == 0) {
+					f[i][j] = false;
+					continue;
+				}
+
+				f[i][j] = false;
+				if (p[j - 1] != '*') {
+					if (i > 0 && (s[i - 1] == p[j - 1] || p[j - 1] != '?')) {
+						f[i][j] = f[i][j] || f[i - 1][j - 1];
+					}
+				}
+				else {
+					f[i][j] = f[i][j] || f[i][j - 1];
+					if (i > 0) {
+						f[i][j] = f[i][j] || f[i - 1][j];
+					}
+				}
+			}
+		}
+
+		return f[m][n];
 	}
 };
 
-class Solution44 {
+class Solution46 {
 public:
-	bool isMatch(string s, string p) {
+	// BFS 
+	// DFS 回溯
+	void backTrack(vector<int>& nums, int index, vector<int>& result, vector<vector<int>>& results) {
+		if (nums.size() == result.size()) {
+			results.emplace_back(result);
+			return;
+		}
 
+		for (int i = 0; i < nums.size(); ++i) {
+			result.emplace_back(nums[i]);
+			
+			backTrack(nums, index + 1, result, results);
+			result.pop_back();
+		}
+	}
+
+	vector<vector<int>> permute(vector<int>& nums) {
+		if (nums.empty()) {
+			return {};
+		}
+
+		vector<vector<int>> results;
+		vector<int> result;
+		backTrack(nums, 0, result, results);
+		return results;
 	}
 };
 
@@ -914,7 +973,23 @@ int main() {
 	
 	// 42. 接雨水
 	// 44. 通配符匹配
+	// 相似题目: 正则表达式匹配
+	// Solution44 s;
+	// cout << s.isMatch("cb", "?a") << endl;
 
+	// 46. 全排列
+	Solution46 s;
+	vector<int> nums = { 1, 2, 3 };
+	vector<vector<int>> res = s.permute(nums);
+	for (auto item : res) {
+		for (auto subItem : item) {
+			cout << subItem << " ";
+		}
+
+		cout << endl;
+	}
+
+	cout << endl;
 	return 0;
 }
 #endif
