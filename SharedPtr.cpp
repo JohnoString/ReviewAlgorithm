@@ -1,4 +1,4 @@
-#if 0
+#if 1
 #include <iostream>
 using namespace std;
 
@@ -268,7 +268,8 @@ private:
 };
 
 void main() {
-    A* p = new A(10);
+    /*
+    * A* p = new A(10);
     A* p1 = new A(10);
    
     MySharedPtr <A> sp1(p), sp2(sp1), sp3(sp2);
@@ -286,6 +287,29 @@ void main() {
     sp4 = sp3;
     cout << sp4.UseCount() << endl; // 4
     cout << sp3.UseCount() << endl; // 4
+    */
+    
+    shared_ptr<int> sp1, sp2;
+    weak_ptr<int> wp;
+    sp1 = make_shared<int>(20);    // sp1
+    wp = sp1;                      // sp1, wp
+
+    cout << "wp count = " << wp.use_count() << endl; // count = 1
+
+    sp2 = wp.lock();                // lock在对象没有被释放的前提下返回的是一个shared_ptr，赋值给sp2时引用计数加1; 如果对象被释放了(如调用了reset或者被其他线程释放了), lock函数返回空的shared_ptr
+
+    cout << "sp2 count = " << sp2.use_count() << endl; // count = 2
+    cout << "sp1 count = " << sp1.use_count() << endl; // count = 2
+
+    sp1.reset();                    // 重置当前管理的指针，引用计数归零并释放托管对象
+
+    cout << "sp1 count = " << sp1.use_count() << endl; // count = 0
+    cout << "wp count = " << wp.use_count() << endl; // count = 1，之前调用了lock防止被释放
+
+    sp1 = wp.lock();
+
+    cout << "sp1 count = " << sp1.use_count() << endl; // count = 2
+    cout << "sp2 count = " << sp2.use_count() << endl; // count = 2
 }
 
 #endif

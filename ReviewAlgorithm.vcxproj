@@ -142,6 +142,7 @@
     <ClCompile Include="Array.cpp" />
     <ClCompile Include="BinarySearch.cpp" />
     <ClCompile Include="BinaryTree.cpp" />
+    <ClCompile Include="C++11.cpp" />
     <ClCompile Include="ConcentratTop145.cpp" />
     <ClCompile Include="List.cpp" />
     <ClCompile Include="MeetOfMS.cpp" />
